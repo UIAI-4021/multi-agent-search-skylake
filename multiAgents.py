@@ -52,8 +52,8 @@ class AIAgent(MultiAgentSearchAgent):
             return value
         else:
             depth += 1
+            value = float('inf')
             for action in gameState.getLegalActions(agent):
-                value = float('inf')
                 value = min(value, self.alphabeta(agent, depth, gameState.generateSuccessor(agent, action), alpha, beta))
                 beta = min(beta, value)
                 if beta <= alpha:
@@ -63,13 +63,18 @@ class AIAgent(MultiAgentSearchAgent):
     def heuristic(self, gameState):
         foods = gameState.getFood()
         (x, y) = gameState.getPacmanPosition()
-        min_distance = float("inf")
-        closest_food = None
+        true_indices = []
         for i in range(20):
             for j in range(11):
-                if foods[i][j] and (abs(i - x) + abs(j - y)) < min_distance:
-                    min_distance = abs(i - x) + abs(j - y)
-                    closest_food = (i, j)
+                if foods[i][j]:
+                    true_indices.append((i, j))
+        closest_food = random.choice(true_indices)
+        # min_distance = float("inf")
+        # for i in range(20):
+        #     for j in range(11):
+        #         if foods[i][j] and (abs(i - x) + abs(j - y)) < min_distance:
+        #             min_distance = abs(i - x) + abs(j - y)
+        #             closest_food = (i, j)
         choosen_actions = []
         if x < closest_food[0]:
             choosen_actions.append('East')
@@ -87,7 +92,6 @@ class AIAgent(MultiAgentSearchAgent):
         action_scores = [self.alphabeta(0, 0, gameState.generateSuccessor(0, action), float('-inf'), float('inf')) for action in possible_actions]
         max_action = max(action_scores)
         max_indices = [index for index in range(len(action_scores)) if action_scores[index] == max_action]
-        chosen_index = random.choice(max_indices)
         if len(max_indices) > 1:
             suggested_actions = self.heuristic(gameState)
             performed_actions = []
@@ -96,5 +100,6 @@ class AIAgent(MultiAgentSearchAgent):
                     performed_actions.append(possible_actions[action])
             if len(performed_actions) > 0:
                 return(random.choice(performed_actions))
+        chosen_index = random.choice(max_indices)
         return possible_actions[chosen_index]
     
