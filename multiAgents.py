@@ -60,15 +60,43 @@ class AIAgent(MultiAgentSearchAgent):
                     break
             return value
 
+    def heuristic(self, gameState):
+        foods = gameState.getFood()
+        (x, y) = gameState.getPacmanPosition()
+        min_distance = float("inf")
+        closest_food = None
+        for i in range(20):
+            for j in range(11):
+                if foods[i][j] and (abs(i - x) + abs(j - y)) < min_distance:
+                    min_distance = abs(i - x) + abs(j - y)
+                    closest_food = (i, j)
+        choosen_actions = []
+        if x < closest_food[0]:
+            choosen_actions.append('East')
+        elif x > closest_food[0]:
+            choosen_actions.append('West')
+        if y < closest_food[1]:
+            choosen_actions.append('North')
+        elif y > closest_food[1]:
+            choosen_actions.append('South')
+        return choosen_actions
+    
+
     def getAction(self, gameState: GameState):
-        print(gameState.getFood())
-        print()
-        possibleActions = gameState.getLegalActions(0)
+        possible_actions = gameState.getLegalActions(0)
         alpha = float('-inf')
         beta = float('inf')
-        action_scores = [self.alphabeta(0, 0, gameState.generateSuccessor(0, action), alpha, beta) for action in possibleActions]
+        action_scores = [self.alphabeta(0, 0, gameState.generateSuccessor(0, action), alpha, beta) for action in possible_actions]
         max_action = max(action_scores)
         max_indices = [index for index in range(len(action_scores)) if action_scores[index] == max_action]
-        chosenIndex = random.choice(max_indices)
-        return possibleActions[chosenIndex]
+        chosen_index = random.choice(max_indices)
+        if len(max_indices) > 1:
+            suggested_actions = self.heuristic(gameState)
+            performed_actions = []
+            for action in max_indices:
+                if possible_actions[action] in suggested_actions:
+                    performed_actions.append(possible_actions[action])
+            if len(performed_actions) > 0:
+                return(random.choice(performed_actions))
+        return possible_actions[chosen_index]
     
