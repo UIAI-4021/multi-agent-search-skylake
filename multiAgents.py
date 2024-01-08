@@ -84,9 +84,7 @@ class AIAgent(MultiAgentSearchAgent):
 
     def getAction(self, gameState: GameState):
         possible_actions = gameState.getLegalActions(0)
-        alpha = float('-inf')
-        beta = float('inf')
-        action_scores = [self.alphabeta(0, 0, gameState.generateSuccessor(0, action), alpha, beta) for action in possible_actions]
+        action_scores = [self.alphabeta(0, 0, gameState.generateSuccessor(0, action), float('-inf'), float('inf')) for action in possible_actions]
         max_action = max(action_scores)
         max_indices = [index for index in range(len(action_scores)) if action_scores[index] == max_action]
         chosen_index = random.choice(max_indices)
